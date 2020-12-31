@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.oa.desktop.news.newslabel.dao.INewsLabelDao">
+
+    <select id="selectAllCount" resultType="int">
+        select count(*) from newlabel
+        <where>
+            <if test="pid>0">
+                pid=#{pid}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectParentById" resultType="NewsLabel">
+        select id,label_name,label_content
+        from newlabel where id=#{pid}
+    </select>
+    <resultMap id="NewsLabelMap" type="NewsLabel">
+        <id column="id" property="id"/>
+        <result column="label_name" property="label_name"/>
+        <result column="label_content" property="label_content"/>
+        <result column="pid" property="pid"/>
+        <collection property="parent"
+                    javaType="NewsLabel"
+                    select="selectParentById"
+                    column="pid"/>
+    </resultMap>
+    <select id="selectCurrentPageNewsLabels" resultMap="NewsLabelMap">
+        select id,label_name,label_content,pid from newlabel
+        <where>
+            <if test="pid>0">
+                pid=#{pid}
+            </if>
+        </where>
+        limit #{pageStartIndex},#{pageSize}
+    </select>
+
+    <select id="selectAllParent" resultType="NewsLabel">
+        select id,label_name,label_content,pid from newlabel where pid is null
+    </select>
+
+    <!--删除栏目信息-->
+    <delete id="deleteNewsLabel">
+        delete from newlabel where id=#{id}
+    </delete>
+
+    <!--添加栏目中，查询所有的栏目信息-->
+    <select id="selectAllNewsLabel" resultType="NewsLabel">
+        select id,label_name,label_content,pid from newlabel
+    </select>
+
+    <insert id="insertNewsLabel">
+        insert into newlabel (label_name,label_content,pid)
+        values(#{label_name},#{label_content},#{pid})
+    </insert>
+
+    <select id="selectByIdNewsLabel" resultType="NewsLabel">
+        select id,label_name,label_content,pid from newlabel where id=#{id}
+    </select>
+
+    <update id="updateNewsLabel">
+        update newlabel set label_name=#{label_name},label_content=#{label_content},pid=#{pid}
+        where id=#{id}
+    </update>
+
+    <select id="selectIdByLabelName" resultType="Integer">
+        select id from newlabel where label_name=#{label_name}
+    </select>
+</mapper>
